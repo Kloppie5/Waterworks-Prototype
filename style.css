@@ -1,0 +1,9 @@
+:root {
+    --color-background: hsl(0, 0%, 90%);
+    --color-text: hsl(0, 0%, 0%);
+}
+
+html {
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
