@@ -1,6 +1,10 @@
 :root {
-    --color-background: hsl(0, 0%, 90%);
-    --color-text: hsl(0, 0%, 0%);
+  --color-background: hsl(0, 0%, 90%);
+  --color-text: hsl(200, 25%, 20%);
+}
+
+:root.debug * {
+  outline: 1px solid red;
 }
 
 html {

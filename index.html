@@ -3,12 +3,113 @@
     <title>Waterworks Prototype</title>
 
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="layout.css" />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        $("#debug-button").click(function() {
+          $("html").toggleClass("debug");
+        });
+      });
+    </script>
 
   </head>
   <body>
     <noscript>You need to enable JavaScript.</noscript>
 
-    Hello again~
+    <div id="header">
+      <div id="toolbar">
+        <button id="debug-button">Debug</button>
+      </div>
+    </div>
+
+    <div id="main-container">
+      <div id="container-mystery-liquid">
+        Mystery Liquid: &infin;
+      </div>
+
+      Bauxite;<br>
+      - Gibbsite: Al(OH)3<br>
+      - Boehmite: gamma-AlO(OH)<br>
+      - Diaspore: alpha-AlO(OH)<br>
+      - Goethite: FeO(OH)<br>
+      - Haematite: Fe2O3<br>
+      - Kaolinite: Al2Si2O5(OH)4<br>
+      - Anatase: TiO2<br>
+      - Ilmenite: FeO.TiO2<br>
+      - Gallium<br>
+      <br>
+      Oxides:<br>
+      - Cassiterite: SnO2<br>
+      - Chromite: (Fe,Mg)Cr2O4<br>
+      - Hematite: Fe2O3<br>
+      - Magnetite: Fe2+Fe3+2O4<br>
+      - Pyrolusite: MnO2<br>
+      - Uraninite: UO2<br>
+      - Wolframite: (Fe,Mn)WO4<br>
+      <br>
+      Carbonates:<br>
+      - Calcite: CaCO3<br>
+      - Dolomite: CaMg(CO3)2<br>
+      - Malachite: Cu2CO3(OH)2<br>
+      - Rhodochrosite: MnCO3<br>
+      - Siderite: FeCO3 | 48% Fe<br>
+      - Smithsonite: ZnCO3<br>
+      <br>
+      Silicates:<br>
+      - Quartz: SiO2<br>
+      <br>
+      Cyclosilicates:<br>
+      - Beryl: Be3Al2Si6O18<br>
+      <br>
+      Halides:<br>
+      - Fluorite: CaF2<br>
+      - Halite: NaCl<br>
+      <br>
+      Sulfides:<br>
+      - Acanthite: Ag2S<br>
+      - Arsenopyrite: FeAsS | 35% Fe, 40% As, 5% Sb, 20% S<br>
+      - Bornite: Cu5FeS4 | 63% Cu<br>
+      - Chalcocite: Cu2S | 80% Cu<br>
+      - Chalcopyrite: CuFeS2<br>
+      - Cinnabar: HgS<br>
+      - Cobaltite: CoAsS<br>
+      - Galena: PbS | 0.8% Ag, 85% Pb, 0.5% Se, -- S<br>
+      - Molybdenite: MoS2<br>
+      - Pentlandite: (Fe,Ni)9S8<br>
+      - Pyrite: FeS2<br>
+      - Sphalerite: (Zn, Fe)S | 60% Zn, 7% Fe, 33% S<br>
+      - Stannite: Cu2FeSnS4 | 28% Sn, 12% Fe, 30% Cu, 30% S<br>
+      - Stibnite: Sb2S3<br>
+      <br>
+      Sulfates:<br>
+      - Alunite: KAl3(SO4)2(OH)6<br>
+      - Anglesite: PbSO4<br>
+      - Anhydrite: CaSO4<br>
+      - Baryte: BaSO4<br>
+      - Celestine: SrSO4<br>
+      <br>
+      Sulfosalts:<br>
+      - Andorite: PbAgSb3S6 | 12% Ag, 1% Cu, 22% Pb, 0.3% Fe, 42% Sb, 0.3% Se, -- S<br>
+      - Freibergite: (Ag,Cu,Fe)12(Sb,As)4S13<br>
+      - Pyrargyrite: Ag3SbS3<br>
+      - Stephanite: Ag5SbS4 | 68.8% Ag<br>
+      - Tennantite: Cu6[Cu4(Fe,Zn)2]As4S13<br>
+      - Tetrahedrite: (Cu,Fe)12Sb4S13<br>
+      - Zinkenite: Pb9Sb22S42<br>
+      <br>
+      Other:<br>
+      - Pollucite: (Cs,Na)2Al2Si4O12.2H20<br>
+      - Scheelite: CaWO4 | 60.63% W<br>
+      - Sperrylite: PtAs2<br>
+
+
+    </div>
+
+    <div id="footer">
+
+    </div>
 
   </body>
 </html>
