@@ -8,27 +8,10 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script>
 
-      story_event_messages = {
-        "snaa" : [
-          (callback) => public_log("Greetings, I am S.N.A.A. (Subtly Named Ai Assistant).", callback),
-          (callback) => public_log("I have been sent here by The Board ahead of your arrival.", callback),
-          (callback) => public_log("I am to assist you in your work and to \"prevent the idiot from blowing up the place\".", callback),
-          (callback) => public_log("", callback),
-        ],
-        "planet_pnygan" : [
-          (callback) => public_log("I am not sure how much you have been told about this place, so let me give you a short summary.", callback),
-          (callback) => public_log("We are currently on a platform in orbit around Pnygan (Planet not yet given a name),", callback),
-          (callback) => public_log("a \"planet\" The Board has kept secret for many decades that completely consists of a mysterious, disturbingly pink, liquid.", callback),
-          (callback) => public_log("", callback),
-        ],
-        "mystery_liquid" : [
-          (callback) => public_log("Under large enough pressure, this Mystery Liquid breaks down anything, and The Board has been using this to dispose of hazardous materials.", callback),
-          (callback) => public_log("It was recently discovered that sending complex patterns of electromagnetic waves through the liquid makes it transform into various materials.", callback),
-          (callback) => public_log("This can obviously have huge economical benefits, so you are tasked with experimenting with the liquid.", callback),
-          (callback) => public_log("In order to prevent information about this from being leaked, you have been given the absolute bare minimum of resources to start your work.", callback),
-          (callback) => public_log("", callback),
-        ],
-      };
+      story_event_messages = {};
+      function add_story_event ( event_name, messages ) {
+        story_event_messages[event_name] = messages;
+      }
 
       function story_event ( event_id ) {
         private_log(`Story event: ${event_id}`);
@@ -56,17 +39,30 @@
       <div id="toolbar">
         <button onclick="toggle_debug();">Debug</button>
         <script>
-          function toggle_debug() {
+          function toggle_debug ( ) {
             $("html").toggleClass("debug");
             $("#console-private").toggleClass("hidden");
           }
+        </script>
+        <button class="disappear-on-story-event-snaa disappear-on-story-event-skip" onclick="story_event('skip');">Skip</button>
+        <script>
+          add_story_event('skip', [
+            (callback) => public_log("Skipping everything up to fabricator 1", callback),
+          ]);
         </script>
       </div>
     </div>
 
     <div id="main-container">
-      <div id="container-mystery-liquid" class="hidden appear-on-story-event-mystery_liquid">
-        Mystery Liquid: &infin;
+      <div id="container-header">
+        <div id="container-power" class="hidden appear-on-story-event-fabricator_1 appear-on-story-event-skip">
+          <b>Power</b><br>
+          <span id="power-level">0</span>/<span id="power-max">0</span>
+        </div>
+        <div id="container-mystery-liquid" class="hidden appear-on-story-event-mystery_liquid appear-on-story-event-skip">
+          <b>Mystery Liquid</b><br>
+          <span id="mystery-liquid-level">0</span>/<span id="mystery-liquid-max">0</span>
+        </div>
       </div>
       <div id="container-console">
         <div id="console-public">
@@ -77,6 +73,7 @@
           function public_log ( message, callback ) {
             id = "console-public-message-" + message_id;
             message_id++;
+            private_log(`Writing ${id}: "${message}"`);
 
             if ( $("#console-public").children().length > 10 ) {
               $("#console-public").children().first().remove();
@@ -85,11 +82,9 @@
             $("#console-public").append(`<div><span id="${id}">SNAA: </span></div>`);
             function type_message ( span, message, i ) {
               if ( i < message.length ) {
-                private_log(`Adding character ${i} of ${message.length} to ${span.attr('id')}`);
                 span.text(span.text() + message[i]);
                 setTimeout(function () {type_message(span, message, i+1)}, 10);
               } else {
-                private_log(`Finished typing message ${span.attr('id')}`);
                 if ( callback ) {
                   callback();
                 }
@@ -111,39 +106,123 @@
         </script>
       </div>
       <div id="container-story-buttons">
-        <div id="story-button-snaa" class="disappear-on-story-event-snaa">
+        <div id="story-button-snaa" class="disappear-on-story-event-snaa disappear-on-story-event-skip">
           <button onclick="story_event('snaa');">What is happening?</button>
+          <script>
+            add_story_event("snaa", [
+              (callback) => public_log("Greetings, I am S.N.A.A. (Subtly Named Ai Assistant).", callback),
+              (callback) => public_log("I have been sent here by The Board ahead of your arrival.", callback),
+              (callback) => public_log("I am to assist you in your work and to \"prevent the idiot from blowing up the place\".", callback),
+              (callback) => public_log("", callback),
+            ]);
+          </script>
         </div>
         <div id="story-button-planet_pnygan" class="hidden appear-on-story-event-snaa disappear-on-story-event-planet_pnygan">
           <button onclick="story_event('planet_pnygan');">Where are we?</button>
+          <script>
+            add_story_event("planet_pnygan", [
+              (callback) => public_log("I am not sure how much you have been told about this place, so let me give you a short summary.", callback),
+              (callback) => public_log("We are currently on a platform in orbit around Pnygan (Planet not yet given a name),", callback),
+              (callback) => public_log("a \"planet\" The Board has kept secret for many decades that completely consists of a mysterious, disturbingly pink, liquid.", callback),
+              (callback) => public_log("", callback),
+            ]);
+          </script>
         </div>
         <div id="story-button-mystery_liquid" class="hidden appear-on-story-event-planet_pnygan disappear-on-story-event-mystery_liquid">
           <button onclick="story_event('mystery_liquid');">Mystery Liquid?</button>
+          <script>
+            add_story_event("mystery_liquid", [
+              (callback) => public_log("Under large enough pressure, this Mystery Liquid breaks down anything, and The Board has been using this to dispose of hazardous materials.", callback),
+              (callback) => public_log("It was recently discovered that sending complex patterns of electromagnetic waves through the liquid makes it transform into various materials.", callback),
+              (callback) => public_log("This can obviously have huge economical benefits, so you are tasked with experimenting with the liquid.", callback),
+              (callback) => public_log("In order to prevent information about this from being leaked, you have been given the absolute bare minimum of resources to start your work.", callback),
+              (callback) => public_log("", callback),
+            ]);
+          </script>
         </div>
+        <div id="story-button-fabricator-1" class="hidden appear-on-story-event-mystery_liquid disappear-on-story-event-fabricator_1">
+          <button onclick="story_event('fabricator_1');">What's that weird machine over there?</button>
+          <script>
+            add_story_event("fabricator_1", [
+              (callback) => public_log("That's called a Fabricator.", callback),
+              (callback) => public_log("I am equipped with a small photovoltaic system used to power the platform.", callback),
+              (callback) => public_log("In your absence, I have taken the liberty of experimenting with the small fabricator, which is capable of creating materials requiring small amounts of electricity, and I have been able to create a few materials.", callback),
+              (callback) => public_log("If you have any questions regarding the materials, don't be afraid to ask.", callback),
+              (callback) => public_log("", callback),
+            ]);
+          </script>
+          <!-- appear-on-story-event-skip -->
       </div>
 
-      <div id="container-fabricator-1">
-        <div id="container-dolomite">
-          <b>Dolomite</b><br><!-- CaMg(CO3)2 -->
-        </div>
-        <div id="container-kaolin">
-          <b>Kaolin</b><br>
-          Kaolinite: Al2Si2O5(OH)4
-        </div>
+      <div id="container-fabricator-1" class="hidden appear-on-story-event-fabricator_1 appear-on-story-event-skip">
+        Small Fabricator:
         <div id="container-limestone">
-          <b>Limestone</b><br>
+          <b>Limestone</b><button onclick="story_event('explain_limestone');">?</button><br>
+          <script>
+            add_story_event("explain_limestone", [
+              (callback) => public_log("Limestone is a common type of sedimentary rock on Sol-3.", callback),
+              (callback) => public_log("It is composed of mostly calcium carbonate (CaCO3), giving access to important construction materials such as mortal and glass.", callback),
+              (callback) => public_log("", callback),
+            ]);
+          </script>
+          <span id="limestone-level">0</span>/<span id="limestone-max">0</span>
+          <!-- quicklime calcination-->
         </div>
         <div id="container-sandstone">
-          <b>Sandstone</b><br>
+          <b>Sandstone</b><button onclick="story_event('explain_sandstone');">?</button><br>
+          <script>
+            add_story_event("explain_sandstone", [
+              (callback) => public_log("Sandstone is a common type of sedimentary rock on Sol-3.", callback),
+              (callback) => public_log("Consisting mostly of quartz, it can be crushed to give easy access to silica.", callback),
+              (callback) => public_log("", callback),
+            ]);
+          </script>
+          <span id="sandstone-level">0</span>/<span id="sandstone-max">0</span>
+        </div>
+        <div id="container-shale">
+          <b>Shale</b><button onclick="story_event('explain_shale');">?</button><br>
+          <script>
+            add_story_event("explain_shale", [
+              (callback) => public_log("Shale is the most common sedimentary rock on Sol-3.", callback),
+              (callback) => public_log("Fine-grained and consisting of many thin layers, shale primarily consists of clay minerals and quartz.", callback),
+              (callback) => public_log("", callback),
+            ]);
+          </script>
+          <span id="shale-level">0</span>/<span id="shale-max">0</span>
+          <!-- 58% clay minerals, 28% quartz, 6% feldspar, 5% carbonate minerals, and 2% iron oxides -->
         </div>
         <div id="container-water">
-          <b>Water</b><br>
+          <b>Water</b><button onclick="story_event('explain_water');">?</button><br>
+          <script>
+            add_story_event("explain_water", [
+              (callback) => public_log("Water is the most important resource in the universe.", callback),
+              (callback) => public_log("The small, polar structure gives water incredible properties, like making it one of the best solvents.", callback),
+              (callback) => public_log("", callback),
+            ]);
+          </script>
+          <span id="water-level">0</span>/<span id="water-max">0</span>
         </div>
         <div id="container-wood">
-          <b>Wood</b><br>
+          <b>Wood</b><button onclick="story_event('explain_wood');">?</button><br>
+          <script>
+            add_story_event("explain_wood", [
+              (callback) => public_log("Wood is used to refer to carbon-based polymer materials.", callback),
+              (callback) => public_log("It is said that large parts of Sol-3 used to be covered in wood based organisms called trees.", callback),
+              (callback) => public_log("", callback),
+            ]);
+          </script>
+          <span id="wood-level">0</span>/<span id="wood-max">0</span>
         </div>
       </div>
       <!--
+        <div id="container-dolomite">
+          <b>Dolomite</b><button onclick="explain_dolomite();">?</button><br>    CaMg(CO3)2
+          <script>
+            function explain_dolomite ( ) {
+
+            }
+          </script>
+        </div>
         Igneous rocks:
         <div id="container-basalt">
           <b>Basalt</b><br>
