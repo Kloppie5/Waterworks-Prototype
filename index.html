@@ -7,11 +7,22 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script>
-      $(document).ready(function() {
-        $("#debug-button").click(function() {
-          $("html").toggleClass("debug");
-        });
-      });
+
+      story_event_messages = {
+        "mystery_liquid" : [
+          "Look at this mysterious liquid!",
+        ],
+      };
+
+      function story_event ( event_id ) {
+        private_log(`Story event: ${event_id}`);
+        $('.appear-on-story-event-' + event_id).toggleClass('hidden');
+        if ( story_event_messages[event_id] ) {
+          for ( var i = 0; i < story_event_messages[event_id].length; i++ ) {
+            public_log( story_event_messages[event_id][i] );
+          }
+        }
+      }
     </script>
 
   </head>
@@ -20,14 +31,87 @@
 
     <div id="header">
       <div id="toolbar">
-        <button id="debug-button">Debug</button>
+        <button onclick="toggle_debug();">Debug</button>
+        <script>
+          function toggle_debug() {
+            $("html").toggleClass("debug");
+            $("#console-private").toggleClass("hidden");
+          }
+        </script>
       </div>
     </div>
 
     <div id="main-container">
-      <div id="container-mystery-liquid">
+      <div id="container-mystery-liquid" class="hidden appear-on-story-event-mystery_liquid">
         Mystery Liquid: &infin;
       </div>
+      <div id="container-console">
+        <div id="console-public">
+
+        </div>
+        <script>
+          function public_log ( message ) {
+            $("#console-public").append("<div><span class='slow-appear'>" + message + "</span></div>");
+            if ( $("#console-public").children().length > 10 ) {
+              $("#console-public").children().first().remove();
+            }
+          }
+        </script>
+        <div id="console-private" class="hidden">
+
+        </div>
+        <script>
+          function private_log ( message ) {
+            $("#console-private").append("<div><span class='slow-appear'>" + message + "</span></div>");
+            if ( $("#console-private").children().length > 10 ) {
+              $("#console-private").children().first().remove();
+            }
+          }
+        </script>
+      </div>
+
+      <div id="container-fabricator-1">
+        <div id="container-dolomite">
+          <b>Dolomite</b><br><!-- CaMg(CO3)2 -->
+        </div>
+        <div id="container-kaolin">
+          <b>Kaolin</b><br>
+          Kaolinite: Al2Si2O5(OH)4
+        </div>
+        <div id="container-limestone">
+          <b>Limestone</b><br>
+        </div>
+        <div id="container-sandstone">
+          <b>Sandstone</b><br>
+        </div>
+        <div id="container-water">
+          <b>Water</b><br>
+        </div>
+        <div id="container-wood">
+          <b>Wood</b><br>
+        </div>
+      </div>
+      <!--
+        Igneous rocks:
+        <div id="container-basalt">
+          <b>Basalt</b><br>
+          Basalt makes up over 90% of all volcanic rock on Sol-3
+        </div>
+        <div id="container-obsidian">
+          <b>Obsidian</b><br>
+          Obsidian is volcanic glass formed when silica-rich lava cools rapidly.
+        </div>
+      -->
+
+      Pit firing
+      ->
+
+      Pugmilling
+
+      Kiln
+      -> bricks
+      -> limestone and clay -> Portland cement
+
 
       Bauxite;<br>
       - Gibbsite: Al(OH)3<br>
@@ -51,7 +135,7 @@
       <br>
       Carbonates:<br>
       - Calcite: CaCO3<br>
-      - Dolomite: CaMg(CO3)2<br>
+      - Dolomite [Sedimentary Rock]: CaMg(CO3)2<br>
       - Malachite: Cu2CO3(OH)2<br>
       - Rhodochrosite: MnCO3<br>
       - Siderite: FeCO3 | 48% Fe<br>
