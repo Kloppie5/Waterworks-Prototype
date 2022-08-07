@@ -6,8 +6,14 @@
     <link rel="stylesheet" href="layout.css" />
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script>
 
+    <script>
+      $(document).ready(function() {
+        start_time();
+      });
+    </script>
+
+    <script> // story event management
       story_event_messages = {};
       function add_story_event ( event_name, messages ) {
         story_event_messages[event_name] = messages;
@@ -30,6 +36,93 @@
         }
       }
     </script>
+    <script> // resource management
+      resources = {};
+      function new_resource ( resource_name, base_amount, base_storage ) {
+        resources[resource_name] = {
+          count: base_amount,
+          max: base_storage,
+        };
+      }
+      function add_resource ( resource_name, amount ) {
+        if ( !resources[resource_name] )
+          throw `Resource ${resource_name} does not exist`;
+
+        resources[resource_name].count = Math.min(
+          resources[resource_name].max,
+          resources[resource_name].count + amount
+        );
+      }
+      function add_resource_storage ( resource_name, amount ) {
+        if ( !resources[resource_name] )
+          throw `Resource ${resource_name} does not exist`;
+
+        resources[resource_name].max = resources[resource_name].max + max;
+      }
+      function get_resource ( resource_name ) {
+        if ( !resources[resource_name] )
+          new_resource(resource_name, 0, 0);
+        return resources[resource_name];
+      }
+    </script>
+    <script> // time management
+      time_lag = 0;
+      time_delta = 0;
+      time_total = 0;
+      time_last = null;
+      step_size = 1000 / 60;
+      frame = null;
+
+      function start_time ( ) {
+        lag = 0;
+        delta = 0;
+        total = 0;
+        last = null;
+
+        frame = requestAnimationFrame(tick);
+      }
+      function stop_time() {
+        cancelAnimationFrame(frame);
+      }
+
+      function tick ( time ) {
+        if (time_last === null) time_last = time;
+        time_delta = time - time_last;
+        time_total += time_delta;
+        time_lag += time_delta;
+        time_last = time;
+
+        number_of_updates = Math.floor(time_lag / step_size);
+        time_lag -= number_of_updates * step_size;
+
+        on_update(number_of_updates);
+        on_render(time_lag / step_size);
+
+        frame = requestAnimationFrame(tick);
+      }
+
+      update_events = {};
+      function register_update_event ( event_name, callback ) {
+        private_log(`Registering update event: ${event_name}`);
+        update_events[event_name] = callback;
+      }
+      function on_update ( number_of_updates ) {
+        for ( let event_name in update_events ) {
+          update_events[event_name](number_of_updates);
+        }
+      }
+
+      render_events = {};
+      function register_render_event ( event_name, callback ) {
+        private_log(`Registering render event: ${event_name}`);
+        render_events[event_name] = callback;
+      }
+      function on_render ( sub_step ) {
+        for ( let event_name in render_events ) {
+          render_events[event_name](sub_step);
+        }
+      }
+    </script>
 
   </head>
   <body>
@@ -48,6 +141,11 @@
         <script>
           add_story_event('skip', [
             (callback) => public_log("Skipping everything up to fabricator 1", callback),
+            (callback) => {new_resource('mystery_liquid', 100, 100); callback()},
+            (callback) => {new_resource('power', 1000, 1000); callback()},
+            (callback) => {register_update_event('power_snaa', (number_of_updates) => {
+              add_resource('power', step_size * number_of_updates * 0.1);
+            }); callback()},
           ]);
         </script>
       </div>
@@ -58,10 +156,26 @@
         <div id="container-power" class="hidden appear-on-story-event-fabricator_1 appear-on-story-event-skip">
           <b>Power</b><br>
           <span id="power-level">0</span>/<span id="power-max">0</span>
+          <script>
+            $(document).ready(function() {
+              register_update_event('power', (sub_step) => {
+                $('#power-level').text(Math.floor(get_resource('power').count));
+                $('#power-max').text(Math.floor(get_resource('power').max));
+              });
+            });
+          </script>
         </div>
         <div id="container-mystery-liquid" class="hidden appear-on-story-event-mystery_liquid appear-on-story-event-skip">
           <b>Mystery Liquid</b><br>
           <span id="mystery-liquid-level">0</span>/<span id="mystery-liquid-max">0</span>
+          <script>
+            $(document).ready(function() {
+              register_render_event('mystery_liquid', (sub_step) => {
+                $('#mystery-liquid-level').text(Math.floor(get_resource('mystery_liquid').count));
+                $('#mystery-liquid-max').text(Math.floor(get_resource('mystery_liquid').max));
+              });
+            });
+          </script>
         </div>
       </div>
       <div id="container-console">
@@ -136,6 +250,8 @@
               (callback) => public_log("It was recently discovered that sending complex patterns of electromagnetic waves through the liquid makes it transform into various materials.", callback),
               (callback) => public_log("This can obviously have huge economical benefits, so you are tasked with experimenting with the liquid.", callback),
               (callback) => public_log("In order to prevent information about this from being leaked, you have been given the absolute bare minimum of resources to start your work.", callback),
+              (callback) => public_log("A small pump on the platform brings in mystery liquid from the planets surface.", callback),
+              (callback) => {new_resource('mystery_liquid', 100, 100); callback()},
               (callback) => public_log("", callback),
             ]);
           </script>
@@ -144,13 +260,18 @@
           <button onclick="story_event('fabricator_1');">What's that weird machine over there?</button>
           <script>
             add_story_event("fabricator_1", [
-              (callback) => public_log("That's called a Fabricator.", callback),
+              (callback) => public_log("That's a small fabricator, which is capable of creating materials requiring small amounts of electricity.", callback),
               (callback) => public_log("I am equipped with a small photovoltaic system used to power the platform.", callback),
-              (callback) => public_log("In your absence, I have taken the liberty of experimenting with the small fabricator, which is capable of creating materials requiring small amounts of electricity, and I have been able to create a few materials.", callback),
+              (callback) => {new_resource('power', 1000, 1000); callback()},
+              (callback) => {register_update_event('power_snaa', (number_of_updates) => {
+                add_resource('power', step_size * number_of_updates * 0.1);
+              }); callback()},
+              (callback) => public_log("In your absence, I have taken the liberty of experimenting with the small fabricator, and I have found some resources that might be helpful.", callback),
               (callback) => public_log("If you have any questions regarding the materials, don't be afraid to ask.", callback),
               (callback) => public_log("", callback),
             ]);
           </script>
+        </div>
           <!-- appear-on-story-event-skip -->
       </div>
 
