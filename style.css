@@ -13,5 +13,23 @@ html {
 }
 
 .hidden {
+  display: none;
   visibility: hidden;
+}
+
+#console-public {
+  background-color: hsl(0, 0%, 10%);
+  color: hsl(0, 0%, 80%);
+  border: 1px solid hsl(0, 0%, 50%);
+  font-family: monospace;
+  font-size: 12px;
+  overflow: auto;
+}
+#console-private {
+  background-color: hsl(0, 0%, 10%);
+  color: hsl(0, 100%, 80%);
+  border: 1px solid hsl(0, 0%, 50%);
+  font-family: monospace;
+  font-size: 12px;
+  overflow: auto;
 }

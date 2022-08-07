@@ -9,18 +9,41 @@
     <script>
 
       story_event_messages = {
+        "snaa" : [
+          (callback) => public_log("Greetings, I am S.N.A.A. (Subtly Named Ai Assistant).", callback),
+          (callback) => public_log("I have been sent here by The Board ahead of your arrival.", callback),
+          (callback) => public_log("I am to assist you in your work and to \"prevent the idiot from blowing up the place\".", callback),
+          (callback) => public_log("", callback),
+        ],
+        "planet_pnygan" : [
+          (callback) => public_log("I am not sure how much you have been told about this place, so let me give you a short summary.", callback),
+          (callback) => public_log("We are currently on a platform in orbit around Pnygan (Planet not yet given a name),", callback),
+          (callback) => public_log("a \"planet\" The Board has kept secret for many decades that completely consists of a mysterious, disturbingly pink, liquid.", callback),
+          (callback) => public_log("", callback),
+        ],
         "mystery_liquid" : [
-          "Look at this mysterious liquid!",
+          (callback) => public_log("Under large enough pressure, this Mystery Liquid breaks down anything, and The Board has been using this to dispose of hazardous materials.", callback),
+          (callback) => public_log("It was recently discovered that sending complex patterns of electromagnetic waves through the liquid makes it transform into various materials.", callback),
+          (callback) => public_log("This can obviously have huge economical benefits, so you are tasked with experimenting with the liquid.", callback),
+          (callback) => public_log("In order to prevent information about this from being leaked, you have been given the absolute bare minimum of resources to start your work.", callback),
+          (callback) => public_log("", callback),
         ],
       };
 
       function story_event ( event_id ) {
         private_log(`Story event: ${event_id}`);
-        $('.appear-on-story-event-' + event_id).toggleClass('hidden');
+        $('.disappear-on-story-event-' + event_id).each(function() {$(this).addClass('hidden');});
         if ( story_event_messages[event_id] ) {
-          for ( var i = 0; i < story_event_messages[event_id].length; i++ ) {
-            public_log( story_event_messages[event_id][i] );
+          function print_story_event_message ( messages, i, callback ) {
+            if ( i < messages.length ) {
+              messages[i](() => print_story_event_message(messages, i+1, callback));
+            } else {
+              callback();
+            }
           }
+          print_story_event_message(story_event_messages[event_id], 0, () => {
+            $('.appear-on-story-event-' + event_id).each(function() {$(this).removeClass('hidden');});
+          });
         }
       }
     </script>
@@ -50,11 +73,29 @@
 
         </div>
         <script>
-          function public_log ( message ) {
-            $("#console-public").append("<div><span class='slow-appear'>" + message + "</span></div>");
+          message_id = 0;
+          function public_log ( message, callback ) {
+            id = "console-public-message-" + message_id;
+            message_id++;
+
             if ( $("#console-public").children().length > 10 ) {
               $("#console-public").children().first().remove();
             }
+
+            $("#console-public").append(`<div><span id="${id}">SNAA: </span></div>`);
+            function type_message ( span, message, i ) {
+              if ( i < message.length ) {
+                private_log(`Adding character ${i} of ${message.length} to ${span.attr('id')}`);
+                span.text(span.text() + message[i]);
+                setTimeout(function () {type_message(span, message, i+1)}, 10);
+              } else {
+                private_log(`Finished typing message ${span.attr('id')}`);
+                if ( callback ) {
+                  callback();
+                }
+              }
+            }
+            type_message($("#" + id), message, 0);
           }
         </script>
         <div id="console-private" class="hidden">
@@ -62,12 +103,23 @@
         </div>
         <script>
           function private_log ( message ) {
-            $("#console-private").append("<div><span class='slow-appear'>" + message + "</span></div>");
+            $("#console-private").append("<div><span style='min-height: 1em'>" + message + "</span></div>");
             if ( $("#console-private").children().length > 10 ) {
               $("#console-private").children().first().remove();
             }
           }
         </script>
+      </div>
+      <div id="container-story-buttons">
+        <div id="story-button-snaa" class="disappear-on-story-event-snaa">
+          <button onclick="story_event('snaa');">What is happening?</button>
+        </div>
+        <div id="story-button-planet_pnygan" class="hidden appear-on-story-event-snaa disappear-on-story-event-planet_pnygan">
+          <button onclick="story_event('planet_pnygan');">Where are we?</button>
+        </div>
+        <div id="story-button-mystery_liquid" class="hidden appear-on-story-event-planet_pnygan disappear-on-story-event-mystery_liquid">
+          <button onclick="story_event('mystery_liquid');">Mystery Liquid?</button>
+        </div>
       </div>
 
       <div id="container-fabricator-1">
@@ -101,7 +153,6 @@
           <b>Obsidian</b><br>
           Obsidian is volcanic glass formed when silica-rich lava cools rapidly.
         </div>
-      -->
 
       Pit firing
       ->
@@ -188,7 +239,7 @@
       - Scheelite: CaWO4 | 60.63% W<br>
       - Sperrylite: PtAs2<br>
 
-
+      -->
     </div>
 
     <div id="footer">
