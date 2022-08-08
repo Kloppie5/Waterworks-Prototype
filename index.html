@@ -222,31 +222,92 @@
       }
     </script>
     <script> // crafting
+      class Ingredient {
+        constructor ( key, amount ) {
+          this.key = key;
+          this.amount = amount;
+        }
+      }
+      class Recipe {
+        constructor ( key, name, description, ingredients, results ) {
+          this.key = key;
+          this.name = name;
+          this.description = description;
+          this.ingredients = ingredients;
+          this.result = results;
+        }
+      }
       recipes = {
-        "limestone" :          { "input" : { "power" : 100, "mystery_liquid" : 1, }, "output" : { "limestone" : 1, }, },
-        "sandstone" :          { "input" : { "power" :  50, "mystery_liquid" : 1, }, "output" : { "sandstone" : 1, }, },
-        "silica_sand" :        { "input" : { "sandstone" : 1, },                     "output" : { "silica_sand" : 1, }, },
-        "shale" :              { "input" : { "power" :  50, "mystery_liquid" : 1, }, "output" : { "shale" :     1, }, },
-        "crushed_shale" :      { "input" : { "shale" : 1, },                         "output" : { "crushed_shale" : 1, }, },
-        "water" :              { "input" : { "power" :  10, "mystery_liquid" : 1, }, "output" : { "water" :     1, }, },
-        "wood" :               { "input" : { "power" : 500, "mystery_liquid" : 1, }, "output" : { "wood" :      1, }, },
+        "limestone" : new Recipe("limestone", "Fabricate Limestone", "Create a block of limestone in the small fabricator.", [
+          new Ingredient("mystery_liquid", 100),
+          new Ingredient("power", 1),
+        ], [
+          new Ingredient("limestone", 1),
+        ]),
+        "sandstone" : new Recipe("sandstone", "Fabricate Sandstone", "Create a block of sandstone in the small fabricator.", [
+          new Ingredient("mystery_liquid", 50),
+          new Ingredient("power", 1),
+        ], [
+          new Ingredient("sandstone", 1),
+        ]),
+        "silica_sand" : new Recipe("silica_sand", "Crush Sandstone", "Crush a block of sandstone into silica sand.", [
+          new Ingredient("sandstone", 1),
+        ], [
+          new Ingredient("silica_sand", 1),
+        ]),
+        "shale" : new Recipe("shale", "Fabricate Shale", "Create a block of shale in the small fabricator.", [
+          new Ingredient("mystery_liquid", 50),
+          new Ingredient("power", 1),
+        ], [
+          new Ingredient("shale", 1),
+        ]),
+        "crushed_shale" : new Recipe("crushed_shale", "Crush Shale", "Crush a block of shale into crushed shale.", [
+          new Ingredient("shale", 1),
+        ], [
+          new Ingredient("crushed_shale", 1),
+        ]),
+        "water" : new Recipe("water", "Fabricate Water", "Create a liter of water in the small fabricator.", [
+          new Ingredient("mystery_liquid", 10),
+          new Ingredient("power", 1),
+        ], [
+          new Ingredient("water", 1),
+        ]),
+        "wood" : new Recipe("wood", "Fabricate Wood", "Create a block of wood in the small fabricator.", [
+          new Ingredient("mystery_liquid", 500),
+          new Ingredient("power", 1),
+        ], [
+          new Ingredient("wood", 1),
+        ]),
 
-        "clay" :               { "input" : { "crushed_shale" : 1, "water" : 1, },    "output" : { "clay" :      1, }, },
-        "unfired_clay_brick" : { "input" : { "clay" : 1, },                       "output" : { "unfired_clay_brick" : 1, }, },
+        "clay" : new Recipe("clay", "Mix Crushed Shale and Water", "Mix crushed shale and water into clay.", [
+          new Ingredient("crushed_shale", 1),
+          new Ingredient("water", 1),
+        ], [
+          new Ingredient("clay", 2),
+        ]),
+        "unfired_clay_brick" : new Recipe("unfired_clay_brick", "Shape Clay Bricks", "Make rough bricks and let them air-dry.", [
+          new Ingredient("clay", 1),
+        ], [
+          new Ingredient("unfired_clay_brick", 1),
+        ]),
       };
       function craft ( recipe_name ) {
         if ( !recipes[recipe_name] )
           throw `Recipe ${recipe_name} does not exist`;
         recipe = recipes[recipe_name];
-        for ( resource_name in recipe.input ) {
-          if ( !has_resource(resource_name, recipe.input[resource_name]) )
+        for ( resource_name in recipe.ingredients ) {
+          ingredient = recipe.ingredients[resource_name];
+          if ( !has_resource(ingredient.key, ingredient.amount) )
             return false;
         }
-        for ( resource_name in recipe.input )
-          decrement_resource(resource_name, recipe.input[resource_name]);
-
-        for ( resource_name in recipe.output )
-          increment_resource(resource_name, recipe.output[resource_name]);
+        for ( resource_name in recipe.ingredients ) {
+          ingredient = recipe.ingredients[resource_name];
+          decrement_resource(ingredient.key, ingredient.amount);
+        }
+        for ( resource_name in recipe.result ) {
+          result = recipe.result[resource_name];
+          increment_resource(result.key, result.amount);
+        }
 
         return true;
       }
