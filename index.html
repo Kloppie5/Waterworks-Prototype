@@ -43,21 +43,6 @@
 
     </script>
     <script> // Event management
-      events = {};
-      function add_event ( event ) {
-        private_log(`Adding event: ${event.name}`);
-        events[event.name] = event;
-      }
-      function trigger_event ( event_name ) {
-        if ( !(event_name in events) ) {
-          private_log(`Could not find event "${event_name}" in events;`);
-          for ( event_name in events ) {
-            private_log(`- "${event_name}" in events;`);
-          }
-          throw `Could not find event "${event_name}" in events;`;
-        }
-        events[event_name].trigger();
-      }
       class Event {
         constructor ( name, effects = [] ) {
           this.name = name;
@@ -72,6 +57,109 @@
           $('.appear-on-event-' + this.name).each(function() {$(this).removeClass('hidden');});
         }
       }
+
+      events = {
+        "story_skip" : new Event("story_skip", [
+          new_print_effect('You skip all the amazing story and go straight to the game.'),
+          new_unlock_effect("mystery_liquid_pump_1"),
+          new_unlock_effect("power_snaa"),
+        ]),
+
+        "story_snaa" : new Event("story_snaa", [
+          new_print_effect("Greetings, I am S.N.A.A. (Subtly Named Ai Assistant)."),
+          new_print_effect("I have been sent here by The Board ahead of your arrival."),
+          new_print_effect("I am to assist you in your work and to \"prevent the idiot from blowing up the place\"."),
+          new_print_effect(""),
+        ]),
+        "story_planet_pnygan" : new Event("story_planet_pnygan", [
+          new_print_effect("I am not sure how much you have been told about this place, so let me give you a short summary."),
+          new_print_effect("We are currently on a platform in orbit around Pnygan (Planet not yet given a name),"),
+          new_print_effect("a \"planet\" The Board has kept secret for many decades that completely consists of a mysterious, disturbingly pink, liquid."),
+          new_print_effect(""),
+        ]),
+        "story_mystery_liquid" : new Event("story_mystery_liquid", [
+          new_print_effect("Under large enough pressure, this Mystery Liquid breaks down anything, and The Board has been using this to dispose of hazardous materials."),
+          new_print_effect("It was recently discovered that sending complex patterns of electromagnetic waves through the liquid makes it transform into various materials."),
+          new_print_effect("This can obviously have huge economical benefits, so you are tasked with experimenting with the liquid."),
+          new_print_effect("In order to prevent information about this from being leaked, you have been given the absolute bare minimum of resources to start your work."),
+          new_print_effect("A small pump on the platform brings in mystery liquid from the planets surface."),
+          new_unlock_effect("mystery_liquid_pump_1"),
+          new_print_effect(""),
+        ]),
+        "story_fabricator_1" : new Event("story_fabricator_1", [
+          new_print_effect("That's a small fabricator, which is capable of creating materials requiring small amounts of electricity."),
+          new_print_effect("I am equipped with a small photovoltaic system used to power the platform."),
+          new_unlock_effect("power_snaa"),
+          new_print_effect("In your absence, I have taken the liberty of experimenting with the small fabricator, and I have found some resources that might be helpful."),
+          new_print_effect("If you have any questions regarding the materials, don't be afraid to ask."),
+          new_print_effect(""),
+        ]),
+
+        "explain_limestone" : new Event("explain_limestone", [
+          new_print_effect("Limestone is a common type of sedimentary rock on Sol-3."),
+          new_print_effect("It is composed of mostly calcium carbonate (CaCO3), giving access to important construction materials such as mortal and glass."),
+          new_print_effect(""),
+        ]),
+        "explain_sandstone" : new Event("explain_sandstone", [
+          new_print_effect("Sandstone is a common type of sedimentary rock on Sol-3."),
+          new_print_effect("Consisting mostly of quartz, it gives easy access to silica."),
+          new_print_effect("It is very soft and readily breaks apart into sand."),
+          new_print_effect(""),
+        ]),
+        "explain_shale" : new Event("explain_shale", [
+          new_print_effect("Shale is the most common sedimentary rock on Sol-3."),
+          new_print_effect("Fine-grained and consisting of many thin layers, shale primarily consists of clay minerals and quartz."),
+          new_print_effect(""),
+        ]),
+        "explain_water" : new Event("explain_water", [
+          new_print_effect("Water is the most important resource in the universe."),
+          new_print_effect("The small, polar structure gives water incredible properties, like making it one of the best solvents."),
+          new_print_effect(""),
+        ]),
+        "explain_wood" : new Event("explain_wood", [
+          new_print_effect("Wood is used to refer to carbon-based polymer materials."),
+          new_print_effect("It is said that large parts of Sol-3 used to be covered in wood based organisms called trees."),
+          new_unlock_effect("base_wood"),
+          new_print_effect(""),
+        ]),
+        "explain_silica_sand" : new Event("explain_silica_sand", [
+          new_print_effect("Silica Sand is a silica rich granular material."),
+          new_unlock_effect("base_silica_sand"),
+          new_print_effect(""),
+        ]),
+        "explain_crushed_shale" : new Event("explain_crushed_shale", [
+          new_print_effect("Crushed Shale can be used to create low quality clay for basic construction."),
+          new_unlock_effect("base_crushed_shale"),
+          new_print_effect(""),
+        ]),
+        "explain_clay" : new Event("explain_clay", [
+          new_print_effect("Clay is a fine-grained material that develops plasticity when wet,"),
+          new_print_effect("and becomes hard and brittle upon drying or firing."),
+          new_print_effect("This makes it a good material for rudimentary construction."),
+          new_unlock_effect("base_clay"),
+          new_print_effect(""),
+        ]),
+        "explain_unfired_clay_brick" : new Event("explain_unfired_clay_brick", [
+          new_print_effect("Clay in the shape of a brick."),
+          new_unlock_effect("base_unfired_clay_brick"),
+          new_print_effect(""),
+        ]),
+      };
+      function add_event ( event ) {
+        private_log(`Adding event: ${event.name}`);
+        events[event.name] = event;
+      }
+      function trigger_event ( event_name ) {
+        if ( !(event_name in events) ) {
+          private_log(`Could not find event "${event_name}" in events;`);
+          for ( event_name in events ) {
+            private_log(`- "${event_name}" in events;`);
+          }
+          throw `Could not find event "${event_name}" in events;`;
+        }
+        events[event_name].trigger();
+      }
+
       function new_print_effect ( text ) {
         return async () => {
           private_log(`Printing: ${text}`);
@@ -80,26 +168,13 @@
       }
 
       unlocks = {
-        "base_mystery_liquid" : () => new_resource('mystery_liquid', 100, 100),
         "mystery_liquid_pump_1" : () => register_update_event('mystery_liquid_pump_1', (number_of_updates) => {
           add_resource('mystery_liquid', step_size * number_of_updates * 0.01);
         }),
 
-        "base_power" : () => new_resource('power', 1000, 1000),
         "power_snaa" : () => register_update_event('power_snaa', (number_of_updates) => {
           add_resource('power', step_size * number_of_updates * 0.1);
         }),
-
-        "base_limestone" : () => new_resource('limestone', 0, 100),
-        "base_sandstone" : () => new_resource('sandstone', 0, 100),
-        "base_silica_sand" : () => new_resource('silica_sand', 0, 100),
-        "base_shale" : () => new_resource('shale', 0, 100),
-        "base_crushed_shale" : () => new_resource('crushed_shale', 0, 100),
-        "base_water" : () => new_resource('water', 0, 100),
-        "base_wood" : () => new_resource('wood', 0, 100),
-
-        "base_clay" : () => new_resource('clay', 0, 100),
-        "base_unfired_clay_brick" : () => new_resource('unfired_clay_brick', 0, 100),
       };
       function new_unlock_effect ( name ) {
         return () => {
@@ -110,41 +185,40 @@
     </script>
 
     <script> // resource management
-      resources = {};
-      function new_resource ( resource_name, base_amount, base_storage ) {
-        resources[resource_name] = {
-          count: base_amount,
-          max: base_storage,
-        };
+      class Resource {
+        constructor ( key, name, description ) {
+          this.key = key;
+          this.name = name;
+          this.description = description;
+          this.amount = 0;
+        }
       }
-      function add_resource ( resource_name, amount ) {
-        if ( !resources[resource_name] )
-          throw `Resource ${resource_name} does not exist`;
 
-        resources[resource_name].count = Math.min(
-          resources[resource_name].max,
-          resources[resource_name].count + amount
-        );
+      resources = {
+        "mystery_liquid" : new Resource("mystery_liquid", "Mystery Liquid", "A mysterious, disturbingly pink liquid."),
+        "power" : new Resource("power", "Power", "Electricity used to power machines."),
+      };
+      function add_resource ( resource ) {
+        private_log(`Adding resource: ${resource.key} (${resource.name})`);
+        resources[resource.key] = resource;
       }
-      function remove_resource ( resource_name, amount ) {
+
+      function increment_resource ( resource_name, amount ) {
         if ( !resources[resource_name] )
-          throw `Resource ${resource_name} does not exist`;
+          resources[resource_name] = 0;
 
-        if ( resources[resource_name].count < amount )
-          throw `Not enough ${resource_name} to remove ${amount}`;
-
-        resources[resource_name].count -= amount;
+        resources[resource_name] += amount;
       }
-      function add_resource_storage ( resource_name, amount ) {
+      function has_resource ( resource_name, amount ) {
         if ( !resources[resource_name] )
-          throw `Resource ${resource_name} does not exist`;
-
-        resources[resource_name].max = resources[resource_name].max + max;
+          return false;
+        return resources[resource_name] >= amount;
       }
-      function get_resource ( resource_name ) {
-        if ( !resources[resource_name] )
-          new_resource(resource_name, 0, 0);
-        return resources[resource_name];
+      function decrement_resource ( resource_name, amount ) {
+        if ( !has_resource(resource_name, amount) )
+          return false;
+
+        resources[resource_name] -= amount;
       }
     </script>
     <script> // crafting
@@ -165,14 +239,14 @@
           throw `Recipe ${recipe_name} does not exist`;
         recipe = recipes[recipe_name];
         for ( resource_name in recipe.input ) {
-          if ( get_resource(resource_name).count < recipe.input[resource_name] )
+          if ( !has_resource(resource_name, recipe.input[resource_name]) )
             return false;
         }
         for ( resource_name in recipe.input )
-          remove_resource(resource_name, recipe.input[resource_name]);
+          decrement_resource(resource_name, recipe.input[resource_name]);
 
         for ( resource_name in recipe.output )
-          add_resource(resource_name, recipe.output[resource_name]);
+          increment_resource(resource_name, recipe.output[resource_name]);
 
         return true;
       }
@@ -251,44 +325,12 @@
           }
         </script>
         <button class="disappear-on-event-story_skip disappear-on-event-story_snaa" onclick="trigger_event('story_skip');">Skip</button>
-        <script>
-          add_event(new Event('story_skip', [
-            new_print_effect('You skip all the amazing story and go straight to the game.'),
-            new_unlock_effect('base_mystery_liquid'),
-            new_unlock_effect('mystery_liquid_pump_1'),
-            new_unlock_effect('base_power'),
-            new_unlock_effect('power_snaa'),
-          ]));
-        </script>
       </div>
     </div>
 
     <div id="main-container">
       <div id="container-header">
-        <div id="container-power" class="hidden appear-on-event-story_fabricator_1 appear-on-event-story_skip">
-          <b>Power</b><br>
-          <span id="power-level">0</span>/<span id="power-max">0</span>
-          <script>
-            $(document).ready(function() {
-              register_render_event('power', (sub_step) => {
-                $('#power-level').text(Math.floor(get_resource('power').count));
-                $('#power-max').text(Math.floor(get_resource('power').max));
-              });
-            });
-          </script>
-        </div>
-        <div id="container-mystery-liquid" class="hidden appear-on-event-story_mystery_liquid appear-on-event-story_skip">
-          <b>Mystery Liquid</b><br>
-          <span id="mystery-liquid-level">0</span>/<span id="mystery-liquid-max">0</span>
-          <script>
-            $(document).ready(function() {
-              register_render_event('mystery_liquid', (sub_step) => {
-                $('#mystery-liquid-level').text(Math.floor(get_resource('mystery_liquid').count));
-                $('#mystery-liquid-max').text(Math.floor(get_resource('mystery_liquid').max));
-              });
-            });
-          </script>
-        </div>
+
       </div>
       <div id="container-console">
         <div id="console-public"></div>
@@ -297,253 +339,47 @@
       <div id="container-story-buttons">
         <div id="story-button-snaa" class="disappear-on-event-story_snaa disappear-on-event-story_skip">
           <button onclick="trigger_event('story_snaa');">What is happening?</button>
-          <script>
-            add_event(new Event('story_snaa', [
-              new_print_effect("Greetings, I am S.N.A.A. (Subtly Named Ai Assistant)."),
-              new_print_effect("I have been sent here by The Board ahead of your arrival."),
-              new_print_effect("I am to assist you in your work and to \"prevent the idiot from blowing up the place\"."),
-              new_print_effect(""),
-            ]));
-          </script>
         </div>
         <div id="story-button-planet_pnygan" class="hidden appear-on-event-story_snaa disappear-on-event-story_planet_pnygan">
           <button onclick="trigger_event('story_planet_pnygan');">Where are we?</button>
-          <script>
-            add_event(new Event('story_planet_pnygan', [
-              new_print_effect("I am not sure how much you have been told about this place, so let me give you a short summary."),
-              new_print_effect("We are currently on a platform in orbit around Pnygan (Planet not yet given a name),"),
-              new_print_effect("a \"planet\" The Board has kept secret for many decades that completely consists of a mysterious, disturbingly pink, liquid."),
-              new_print_effect(""),
-            ]));
-          </script>
         </div>
         <div id="story-button-mystery_liquid" class="hidden appear-on-event-story_planet_pnygan disappear-on-event-story_mystery_liquid">
           <button onclick="trigger_event('story_mystery_liquid');">Mystery Liquid?</button>
-          <script>
-            add_event(new Event('story_mystery_liquid', [
-              new_print_effect("Under large enough pressure, this Mystery Liquid breaks down anything, and The Board has been using this to dispose of hazardous materials."),
-              new_print_effect("It was recently discovered that sending complex patterns of electromagnetic waves through the liquid makes it transform into various materials."),
-              new_print_effect("This can obviously have huge economical benefits, so you are tasked with experimenting with the liquid."),
-              new_print_effect("In order to prevent information about this from being leaked, you have been given the absolute bare minimum of resources to start your work."),
-              new_print_effect("A small pump on the platform brings in mystery liquid from the planets surface."),
-              new_unlock_effect('base_mystery_liquid'),
-              new_unlock_effect('mystery_liquid_pump_1'),
-              new_print_effect(""),
-            ]));
-          </script>
         </div>
         <div id="story-button-fabricator-1" class="hidden appear-on-event-story_mystery_liquid disappear-on-event-story_fabricator_1">
           <button onclick="trigger_event('story_fabricator_1');">What's that weird machine over there?</button>
-          <script>
-            add_event(new Event('story_fabricator_1', [
-              new_print_effect("That's a small fabricator, which is capable of creating materials requiring small amounts of electricity."),
-              new_print_effect("I am equipped with a small photovoltaic system used to power the platform."),
-              new_unlock_effect('base_power'),
-              new_unlock_effect('power_snaa'),
-              new_print_effect("In your absence, I have taken the liberty of experimenting with the small fabricator, and I have found some resources that might be helpful."),
-              new_print_effect("If you have any questions regarding the materials, don't be afraid to ask."),
-              new_print_effect(""),
-            ]));
-          </script>
         </div>
           <!-- appear-on-event-story_skip -->
       </div>
 
+      <div id="container-inventory" class="hidden appear-on-event-story_mystery_liquid">
+        <script>
+          $(document).ready(function() {
+            register_render_event('render_inventory', (sub_step) => {
+              let inventory = $("#container-inventory");
+              inventory.empty();
+              for ( let resource_name in resources ) {
+                private_log(`Rendering resource: ${resource_name}`);
+                let resource = resources[resource_name];
+                let resource_element = $("<div class='resource'></div>");
+                resource_element.append($("<div class='resource-name'></div>").text(resource.name));
+                resource_element.append($("<div class='resource-amount'></div>").text(resource.amount));
+                inventory.append(resource_element);
+              }
+            });
+          });
+        </script>
+      </div>
+
       <div id="container-fabricator-1" class="hidden appear-on-event-story_fabricator_1 appear-on-event-story_skip">
         Small Fabricator:
-        <div id="container-limestone">
-          <b>Limestone</b><button class="disappear-on-event-explain_limestone" onclick="trigger_event('explain_limestone');">?</button><br>
-          <script>
-            add_event(new Event('explain_limestone', [
-              new_print_effect("Limestone is a common type of sedimentary rock on Sol-3."),
-              new_print_effect("It is composed of mostly calcium carbonate (CaCO3), giving access to important construction materials such as mortal and glass."),
-              new_unlock_effect("base_limestone"),
-              new_print_effect(""),
-            ]));
-          </script>
-          <span class="hidden appear-on-event-explain_limestone"><span id="limestone-level">0</span>/<span id="limestone-max">0</span><br>
-          Fabricate: <button onclick="craft('limestone');">+</button></span>
-          <script>
-            $(document).ready(function() {
-              register_render_event('limestone', (sub_step) => {
-                $('#limestone-level').text(Math.floor(get_resource('limestone').count));
-                $('#limestone-max').text(Math.floor(get_resource('limestone').max));
-              });
+        <script>
+          $(document).ready(function() {
+            register_render_event('render_fabricator_1', (sub_step) => {
+
             });
-          </script>
-          <!-- quicklime calcination-->
-        </div>
-        <div id="container-sandstone">
-          <b>Sandstone</b><button class="disappear-on-event-explain_sandstone" onclick="trigger_event('explain_sandstone');">?</button><br>
-          <script>
-            add_event(new Event('explain_sandstone', [
-              new_print_effect("Sandstone is a common type of sedimentary rock on Sol-3."),
-              new_print_effect("Consisting mostly of quartz, it gives easy access to silica."),
-              new_print_effect("It is very soft and readily breaks apart into sand."),
-              new_unlock_effect("base_sandstone"),
-              new_print_effect(""),
-            ]));
-          </script>
-          <span class="hidden appear-on-event-explain_sandstone"><span id="sandstone-level">0</span>/<span id="sandstone-max">0</span><br>
-          Fabricate: <button onclick="craft('sandstone');">+</button></span>
-          <script>
-            $(document).ready(function() {
-              register_render_event('sandstone', (sub_step) => {
-                $('#sandstone-level').text(Math.floor(get_resource('sandstone').count));
-                $('#sandstone-max').text(Math.floor(get_resource('sandstone').max));
-              });
-            });
-          </script>
-        </div>
-        <div id="container-shale">
-          <b>Shale</b><button class="disappear-on-event-explain_shale" onclick="trigger_event('explain_shale');">?</button><br>
-          <script>
-            add_event(new Event('explain_shale', [
-              new_print_effect("Shale is the most common sedimentary rock on Sol-3."),
-              new_print_effect("Fine-grained and consisting of many thin layers, shale primarily consists of clay minerals and quartz."),
-              new_unlock_effect("base_shale"),
-              new_print_effect(""),
-            ]));
-          </script>
-          <span class="hidden appear-on-event-explain_shale"><span id="shale-level">0</span>/<span id="shale-max">0</span><br>
-          Fabricate: <button onclick="craft('shale');">+</button></span>
-          <script>
-            $(document).ready(function() {
-              register_render_event('shale', (sub_step) => {
-                $('#shale-level').text(Math.floor(get_resource('shale').count));
-                $('#shale-max').text(Math.floor(get_resource('shale').max));
-              });
-            });
-          </script>
-          <!-- 58% clay minerals, 28% quartz, 6% feldspar, 5% carbonate minerals, and 2% iron oxides -->
-        </div>
-        <div id="container-water">
-          <b>Water</b><button class="disappear-on-event-explain_water" onclick="trigger_event('explain_water');">?</button><br>
-          <script>
-            add_event(new Event('explain_water', [
-              new_print_effect("Water is the most important resource in the universe."),
-              new_print_effect("The small, polar structure gives water incredible properties, like making it one of the best solvents."),
-              new_unlock_effect("base_water"),
-              new_print_effect(""),
-            ]));
-          </script>
-          <span class="hidden appear-on-event-explain_water"><span id="water-level">0</span>/<span id="water-max">0</span><br>
-          Fabricate: <button onclick="craft('water');">+</button></span>
-          <script>
-            $(document).ready(function() {
-              register_render_event('water', (sub_step) => {
-                $('#water-level').text(Math.floor(get_resource('water').count));
-                $('#water-max').text(Math.floor(get_resource('water').max));
-              });
-            });
-          </script>
-        </div>
-        <div id="container-wood">
-          <b>Wood</b><button class="disappear-on-event-explain_wood" onclick="trigger_event('explain_wood');">?</button><br>
-          <script>
-            add_event(new Event('explain_wood', [
-              new_print_effect("Wood is used to refer to carbon-based polymer materials."),
-              new_print_effect("It is said that large parts of Sol-3 used to be covered in wood based organisms called trees."),
-              new_unlock_effect("base_wood"),
-              new_print_effect(""),
-            ]));
-          </script>
-          <span class="hidden appear-on-event-explain_wood"><span id="wood-level">0</span>/<span id="wood-max">0</span><br>
-          Fabricate: <button onclick="craft('wood');">+</button></span>
-          <script>
-            $(document).ready(function() {
-              register_render_event('wood', (sub_step) => {
-                $('#wood-level').text(Math.floor(get_resource('wood').count));
-                $('#wood-max').text(Math.floor(get_resource('wood').max));
-              });
-            });
-          </script>
-        </div>
-      </div>
-      <div id="container-handcrafting" class="hidden appear-on-event-explain_sandstone appear-on-event-explain_shale">
-        Hand crafting:
-        <div id="container-silica_sand" class="hidden appear-on-event-explain_sandstone">
-          <b>Silica Sand</b><button class="disappear-on-event-explain_silica_sand" onclick="trigger_event('explain_silica_sand');">?</button><br>
-          <script>
-            add_event(new Event('explain_silica_sand', [
-              new_print_effect("Silica Sand is a silica rich granular material."),
-              new_unlock_effect("base_silica_sand"),
-              new_print_effect(""),
-            ]));
-          </script>
-          <span class="hidden appear-on-event-explain_silica_sand"><span id="silica_sand-level">0</span>/<span id="silica_sand-max">0</span><br>
-          Crush sandstone: <button onclick="craft('silica_sand');">+</button></span>
-          <script>
-            $(document).ready(function() {
-              register_render_event('silica_sand', (sub_step) => {
-                $('#silica_sand-level').text(Math.floor(get_resource('silica_sand').count));
-                $('#silica_sand-max').text(Math.floor(get_resource('silica_sand').max));
-              });
-            });
-          </script>
-        </div>
-        <div id="container-crushed_shale" class="hidden appear-on-event-explain_shale">
-          <b>Crushed Shale</b><button class="disappear-on-event-explain_crushed_shale" onclick="trigger_event('explain_crushed_shale');">?</button><br>
-          <script>
-            add_event(new Event('explain_crushed_shale', [
-              new_print_effect("Crushed Shale can be used to create low quality clay for basic construction."),
-              new_unlock_effect("base_crushed_shale"),
-              new_print_effect(""),
-            ]));
-          </script>
-          <span class="hidden appear-on-event-explain_crushed_shale"><span id="crushed_shale-level">0</span>/<span id="crushed_shale-max">0</span><br>
-          Crush shale: <button onclick="craft('crushed_shale');">+</button></span>
-          <script>
-            $(document).ready(function() {
-              register_render_event('crushed_shale', (sub_step) => {
-                $('#crushed_shale-level').text(Math.floor(get_resource('crushed_shale').count));
-                $('#crushed_shale-max').text(Math.floor(get_resource('crushed_shale').max));
-              });
-            });
-          </script>
-        </div>
-        <div id="container-clay" class="hidden appear-on-event-explain_crushed_shale">
-          <b>Clay</b><button class="disappear-on-event-explain_clay" onclick="trigger_event('explain_clay');">?</button><br>
-          <script>
-            add_event(new Event('explain_clay', [
-              new_print_effect("Clay is a fine-grained material that develops plasticity when wet,"),
-              new_print_effect("and becomes hard and brittle upon drying or firing."),
-              new_print_effect("This makes it a good material for rudimentary construction."),
-              new_unlock_effect("base_clay"),
-              new_print_effect(""),
-            ]));
-          </script>
-          <span class="hidden appear-on-event-explain_clay"><span id="clay-level">0</span>/<span id="clay-max">0</span><br>
-          Mix crushed shale and water: <button onclick="craft('clay');">+</button></span>
-          <script>
-            $(document).ready(function() {
-              register_render_event('clay', (sub_step) => {
-                $('#clay-level').text(Math.floor(get_resource('clay').count));
-                $('#clay-max').text(Math.floor(get_resource('clay').max));
-              });
-            });
-          </script>
-        </div>
-        <div id="container-unfired_clay_brick" class="hidden appear-on-event-explain_clay">
-          <b>Unfired clay brick</b><button class="disappear-on-event-explain_unfired_clay_brick" onclick="trigger_event('explain_unfired_clay_brick');">?</button><br>
-          <script>
-            add_event(new Event('explain_unfired_clay_brick', [
-              new_print_effect("Clay in the shape of a brick."),
-              new_unlock_effect("base_unfired_clay_brick"),
-              new_print_effect(""),
-            ]));
-          </script>
-          <span class="hidden appear-on-event-explain_unfired_clay_brick"><span id="unfired_clay_brick-level">0</span>/<span id="unfired_clay_brick-max">0</span><br>
-          Shape clay: <button onclick="craft('unfired_clay_brick');">+</button></span>
-          <script>
-            $(document).ready(function() {
-              register_render_event('unfired_clay_brick', (sub_step) => {
-                $('#unfired_clay_brick-level').text(Math.floor(get_resource('unfired_clay_brick').count));
-                $('#unfired_clay_brick-max').text(Math.floor(get_resource('unfired_clay_brick').max));
-              });
-            });
-          </script>
-        </div>
+          });
+        </script>
       </div>
       <!--
         <div id="container-dolomite">
