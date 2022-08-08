@@ -78,10 +78,29 @@
           await public_log(text);
         };
       }
-      unlocks = {};
-      function add_unlock ( name, effect ) {
-        unlocks[name] = effect;
-      }
+
+      unlocks = {
+        "base_mystery_liquid" : () => new_resource('mystery_liquid', 100, 100),
+        "mystery_liquid_pump_1" : () => register_update_event('mystery_liquid_pump_1', (number_of_updates) => {
+          add_resource('mystery_liquid', step_size * number_of_updates * 0.01);
+        }),
+
+        "base_power" : () => new_resource('power', 1000, 1000),
+        "power_snaa" : () => register_update_event('power_snaa', (number_of_updates) => {
+          add_resource('power', step_size * number_of_updates * 0.1);
+        }),
+
+        "base_limestone" : () => new_resource('limestone', 0, 100),
+        "base_sandstone" : () => new_resource('sandstone', 0, 100),
+        "base_silica_sand" : () => new_resource('silica_sand', 0, 100),
+        "base_shale" : () => new_resource('shale', 0, 100),
+        "base_crushed_shale" : () => new_resource('crushed_shale', 0, 100),
+        "base_water" : () => new_resource('water', 0, 100),
+        "base_wood" : () => new_resource('wood', 0, 100),
+
+        "base_clay" : () => new_resource('clay', 0, 100),
+        "base_unfired_clay_brick" : () => new_resource('unfired_clay_brick', 0, 100),
+      };
       function new_unlock_effect ( name ) {
         return () => {
           private_log(`Unlocking: ${name}`);
@@ -107,6 +126,15 @@
           resources[resource_name].count + amount
         );
       }
+      function remove_resource ( resource_name, amount ) {
+        if ( !resources[resource_name] )
+          throw `Resource ${resource_name} does not exist`;
+
+        if ( resources[resource_name].count < amount )
+          throw `Not enough ${resource_name} to remove ${amount}`;
+
+        resources[resource_name].count -= amount;
+      }
       function add_resource_storage ( resource_name, amount ) {
         if ( !resources[resource_name] )
           throw `Resource ${resource_name} does not exist`;
@@ -117,6 +145,36 @@
         if ( !resources[resource_name] )
           new_resource(resource_name, 0, 0);
         return resources[resource_name];
+      }
+    </script>
+    <script> // crafting
+      recipes = {
+        "limestone" :          { "input" : { "power" : 100, "mystery_liquid" : 1, }, "output" : { "limestone" : 1, }, },
+        "sandstone" :          { "input" : { "power" :  50, "mystery_liquid" : 1, }, "output" : { "sandstone" : 1, }, },
+        "silica_sand" :        { "input" : { "sandstone" : 1, },                     "output" : { "silica_sand" : 1, }, },
+        "shale" :              { "input" : { "power" :  50, "mystery_liquid" : 1, }, "output" : { "shale" :     1, }, },
+        "crushed_shale" :      { "input" : { "shale" : 1, },                         "output" : { "crushed_shale" : 1, }, },
+        "water" :              { "input" : { "power" :  10, "mystery_liquid" : 1, }, "output" : { "water" :     1, }, },
+        "wood" :               { "input" : { "power" : 500, "mystery_liquid" : 1, }, "output" : { "wood" :      1, }, },
+
+        "clay" :               { "input" : { "crushed_shale" : 1, "water" : 1, },    "output" : { "clay" :      1, }, },
+        "unfired_clay_brick" : { "input" : { "clay" : 1, },                       "output" : { "unfired_clay_brick" : 1, }, },
+      };
+      function craft ( recipe_name ) {
+        if ( !recipes[recipe_name] )
+          throw `Recipe ${recipe_name} does not exist`;
+        recipe = recipes[recipe_name];
+        for ( resource_name in recipe.input ) {
+          if ( get_resource(resource_name).count < recipe.input[resource_name] )
+            return false;
+        }
+        for ( resource_name in recipe.input )
+          remove_resource(resource_name, recipe.input[resource_name]);
+
+        for ( resource_name in recipe.output )
+          add_resource(resource_name, recipe.output[resource_name]);
+
+        return true;
       }
     </script>
     <script> // time management
@@ -184,12 +242,23 @@
 
     <div id="header">
       <div id="toolbar">
+        <img src="https://visitor-badge.glitch.me/badge?page_id=kloppie5.waterworks" alt="Visitor Badge">
         <button onclick="toggle_debug();">Debug</button>
         <script>
           function toggle_debug ( ) {
             $("html").toggleClass("debug");
             $("#console-private").toggleClass("hidden");
           }
+        </script>
+        <button class="disappear-on-event-story_skip disappear-on-event-story_snaa" onclick="trigger_event('story_skip');">Skip</button>
+        <script>
+          add_event(new Event('story_skip', [
+            new_print_effect('You skip all the amazing story and go straight to the game.'),
+            new_unlock_effect('base_mystery_liquid'),
+            new_unlock_effect('mystery_liquid_pump_1'),
+            new_unlock_effect('base_power'),
+            new_unlock_effect('power_snaa'),
+          ]));
         </script>
       </div>
     </div>
@@ -205,14 +274,6 @@
                 $('#power-level').text(Math.floor(get_resource('power').count));
                 $('#power-max').text(Math.floor(get_resource('power').max));
               });
-              add_unlock('base_power', () => {
-                new_resource('power', 1000, 1000);
-              });
-              add_unlock('power_snaa', () => {
-                register_update_event('power_snaa', (number_of_updates) => {
-                  add_resource('power', step_size * number_of_updates * 0.1);
-                });
-              });
             });
           </script>
         </div>
@@ -224,14 +285,6 @@
               register_render_event('mystery_liquid', (sub_step) => {
                 $('#mystery-liquid-level').text(Math.floor(get_resource('mystery_liquid').count));
                 $('#mystery-liquid-max').text(Math.floor(get_resource('mystery_liquid').max));
-              });
-              add_unlock('base_mystery_liquid', () => {
-                new_resource('mystery_liquid', 100, 100);
-              });
-              add_unlock('mystery_liquid_pump_1', () => {
-                register_update_event('mystery_liquid_pump_1', (number_of_updates) => {
-                  add_resource('mystery_liquid', step_size * number_of_updates * 0.01);
-                });
               });
             });
           </script>
@@ -299,61 +352,197 @@
       <div id="container-fabricator-1" class="hidden appear-on-event-story_fabricator_1 appear-on-event-story_skip">
         Small Fabricator:
         <div id="container-limestone">
-          <b>Limestone</b><button onclick="trigger_event('explain_limestone');">?</button><br>
+          <b>Limestone</b><button class="disappear-on-event-explain_limestone" onclick="trigger_event('explain_limestone');">?</button><br>
           <script>
             add_event(new Event('explain_limestone', [
               new_print_effect("Limestone is a common type of sedimentary rock on Sol-3."),
               new_print_effect("It is composed of mostly calcium carbonate (CaCO3), giving access to important construction materials such as mortal and glass."),
+              new_unlock_effect("base_limestone"),
               new_print_effect(""),
             ]));
           </script>
-          <span id="limestone-level">0</span>/<span id="limestone-max">0</span>
+          <span class="hidden appear-on-event-explain_limestone"><span id="limestone-level">0</span>/<span id="limestone-max">0</span><br>
+          Fabricate: <button onclick="craft('limestone');">+</button></span>
+          <script>
+            $(document).ready(function() {
+              register_render_event('limestone', (sub_step) => {
+                $('#limestone-level').text(Math.floor(get_resource('limestone').count));
+                $('#limestone-max').text(Math.floor(get_resource('limestone').max));
+              });
+            });
+          </script>
           <!-- quicklime calcination-->
         </div>
         <div id="container-sandstone">
-          <b>Sandstone</b><button onclick="trigger_event('explain_sandstone');">?</button><br>
+          <b>Sandstone</b><button class="disappear-on-event-explain_sandstone" onclick="trigger_event('explain_sandstone');">?</button><br>
           <script>
             add_event(new Event('explain_sandstone', [
               new_print_effect("Sandstone is a common type of sedimentary rock on Sol-3."),
-              new_print_effect("Consisting mostly of quartz, it can be crushed to give easy access to silica."),
+              new_print_effect("Consisting mostly of quartz, it gives easy access to silica."),
+              new_print_effect("It is very soft and readily breaks apart into sand."),
+              new_unlock_effect("base_sandstone"),
               new_print_effect(""),
             ]));
           </script>
-          <span id="sandstone-level">0</span>/<span id="sandstone-max">0</span>
+          <span class="hidden appear-on-event-explain_sandstone"><span id="sandstone-level">0</span>/<span id="sandstone-max">0</span><br>
+          Fabricate: <button onclick="craft('sandstone');">+</button></span>
+          <script>
+            $(document).ready(function() {
+              register_render_event('sandstone', (sub_step) => {
+                $('#sandstone-level').text(Math.floor(get_resource('sandstone').count));
+                $('#sandstone-max').text(Math.floor(get_resource('sandstone').max));
+              });
+            });
+          </script>
         </div>
         <div id="container-shale">
-          <b>Shale</b><button onclick="trigger_event('explain_shale');">?</button><br>
+          <b>Shale</b><button class="disappear-on-event-explain_shale" onclick="trigger_event('explain_shale');">?</button><br>
           <script>
             add_event(new Event('explain_shale', [
               new_print_effect("Shale is the most common sedimentary rock on Sol-3."),
               new_print_effect("Fine-grained and consisting of many thin layers, shale primarily consists of clay minerals and quartz."),
+              new_unlock_effect("base_shale"),
               new_print_effect(""),
             ]));
           </script>
-          <span id="shale-level">0</span>/<span id="shale-max">0</span>
+          <span class="hidden appear-on-event-explain_shale"><span id="shale-level">0</span>/<span id="shale-max">0</span><br>
+          Fabricate: <button onclick="craft('shale');">+</button></span>
+          <script>
+            $(document).ready(function() {
+              register_render_event('shale', (sub_step) => {
+                $('#shale-level').text(Math.floor(get_resource('shale').count));
+                $('#shale-max').text(Math.floor(get_resource('shale').max));
+              });
+            });
+          </script>
           <!-- 58% clay minerals, 28% quartz, 6% feldspar, 5% carbonate minerals, and 2% iron oxides -->
         </div>
         <div id="container-water">
-          <b>Water</b><button onclick="trigger_event('explain_water');">?</button><br>
+          <b>Water</b><button class="disappear-on-event-explain_water" onclick="trigger_event('explain_water');">?</button><br>
           <script>
             add_event(new Event('explain_water', [
               new_print_effect("Water is the most important resource in the universe."),
               new_print_effect("The small, polar structure gives water incredible properties, like making it one of the best solvents."),
+              new_unlock_effect("base_water"),
               new_print_effect(""),
             ]));
           </script>
-          <span id="water-level">0</span>/<span id="water-max">0</span>
+          <span class="hidden appear-on-event-explain_water"><span id="water-level">0</span>/<span id="water-max">0</span><br>
+          Fabricate: <button onclick="craft('water');">+</button></span>
+          <script>
+            $(document).ready(function() {
+              register_render_event('water', (sub_step) => {
+                $('#water-level').text(Math.floor(get_resource('water').count));
+                $('#water-max').text(Math.floor(get_resource('water').max));
+              });
+            });
+          </script>
         </div>
         <div id="container-wood">
-          <b>Wood</b><button onclick="trigger_event('explain_wood');">?</button><br>
+          <b>Wood</b><button class="disappear-on-event-explain_wood" onclick="trigger_event('explain_wood');">?</button><br>
           <script>
             add_event(new Event('explain_wood', [
               new_print_effect("Wood is used to refer to carbon-based polymer materials."),
               new_print_effect("It is said that large parts of Sol-3 used to be covered in wood based organisms called trees."),
+              new_unlock_effect("base_wood"),
               new_print_effect(""),
             ]));
           </script>
-          <span id="wood-level">0</span>/<span id="wood-max">0</span>
+          <span class="hidden appear-on-event-explain_wood"><span id="wood-level">0</span>/<span id="wood-max">0</span><br>
+          Fabricate: <button onclick="craft('wood');">+</button></span>
+          <script>
+            $(document).ready(function() {
+              register_render_event('wood', (sub_step) => {
+                $('#wood-level').text(Math.floor(get_resource('wood').count));
+                $('#wood-max').text(Math.floor(get_resource('wood').max));
+              });
+            });
+          </script>
+        </div>
+      </div>
+      <div id="container-handcrafting" class="hidden appear-on-event-explain_sandstone appear-on-event-explain_shale">
+        Hand crafting:
+        <div id="container-silica_sand" class="hidden appear-on-event-explain_sandstone">
+          <b>Silica Sand</b><button class="disappear-on-event-explain_silica_sand" onclick="trigger_event('explain_silica_sand');">?</button><br>
+          <script>
+            add_event(new Event('explain_silica_sand', [
+              new_print_effect("Silica Sand is a silica rich granular material."),
+              new_unlock_effect("base_silica_sand"),
+              new_print_effect(""),
+            ]));
+          </script>
+          <span class="hidden appear-on-event-explain_silica_sand"><span id="silica_sand-level">0</span>/<span id="silica_sand-max">0</span><br>
+          Crush sandstone: <button onclick="craft('silica_sand');">+</button></span>
+          <script>
+            $(document).ready(function() {
+              register_render_event('silica_sand', (sub_step) => {
+                $('#silica_sand-level').text(Math.floor(get_resource('silica_sand').count));
+                $('#silica_sand-max').text(Math.floor(get_resource('silica_sand').max));
+              });
+            });
+          </script>
+        </div>
+        <div id="container-crushed_shale" class="hidden appear-on-event-explain_shale">
+          <b>Crushed Shale</b><button class="disappear-on-event-explain_crushed_shale" onclick="trigger_event('explain_crushed_shale');">?</button><br>
+          <script>
+            add_event(new Event('explain_crushed_shale', [
+              new_print_effect("Crushed Shale can be used to create low quality clay for basic construction."),
+              new_unlock_effect("base_crushed_shale"),
+              new_print_effect(""),
+            ]));
+          </script>
+          <span class="hidden appear-on-event-explain_crushed_shale"><span id="crushed_shale-level">0</span>/<span id="crushed_shale-max">0</span><br>
+          Crush shale: <button onclick="craft('crushed_shale');">+</button></span>
+          <script>
+            $(document).ready(function() {
+              register_render_event('crushed_shale', (sub_step) => {
+                $('#crushed_shale-level').text(Math.floor(get_resource('crushed_shale').count));
+                $('#crushed_shale-max').text(Math.floor(get_resource('crushed_shale').max));
+              });
+            });
+          </script>
+        </div>
+        <div id="container-clay" class="hidden appear-on-event-explain_crushed_shale">
+          <b>Clay</b><button class="disappear-on-event-explain_clay" onclick="trigger_event('explain_clay');">?</button><br>
+          <script>
+            add_event(new Event('explain_clay', [
+              new_print_effect("Clay is a fine-grained material that develops plasticity when wet,"),
+              new_print_effect("and becomes hard and brittle upon drying or firing."),
+              new_print_effect("This makes it a good material for rudimentary construction."),
+              new_unlock_effect("base_clay"),
+              new_print_effect(""),
+            ]));
+          </script>
+          <span class="hidden appear-on-event-explain_clay"><span id="clay-level">0</span>/<span id="clay-max">0</span><br>
+          Mix crushed shale and water: <button onclick="craft('clay');">+</button></span>
+          <script>
+            $(document).ready(function() {
+              register_render_event('clay', (sub_step) => {
+                $('#clay-level').text(Math.floor(get_resource('clay').count));
+                $('#clay-max').text(Math.floor(get_resource('clay').max));
+              });
+            });
+          </script>
+        </div>
+        <div id="container-unfired_clay_brick" class="hidden appear-on-event-explain_clay">
+          <b>Unfired clay brick</b><button class="disappear-on-event-explain_unfired_clay_brick" onclick="trigger_event('explain_unfired_clay_brick');">?</button><br>
+          <script>
+            add_event(new Event('explain_unfired_clay_brick', [
+              new_print_effect("Clay in the shape of a brick."),
+              new_unlock_effect("base_unfired_clay_brick"),
+              new_print_effect(""),
+            ]));
+          </script>
+          <span class="hidden appear-on-event-explain_unfired_clay_brick"><span id="unfired_clay_brick-level">0</span>/<span id="unfired_clay_brick-max">0</span><br>
+          Shape clay: <button onclick="craft('unfired_clay_brick');">+</button></span>
+          <script>
+            $(document).ready(function() {
+              register_render_event('unfired_clay_brick', (sub_step) => {
+                $('#unfired_clay_brick-level').text(Math.floor(get_resource('unfired_clay_brick').count));
+                $('#unfired_clay_brick-max').text(Math.floor(get_resource('unfired_clay_brick').max));
+              });
+            });
+          </script>
         </div>
       </div>
       <!--
